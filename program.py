@@ -10,8 +10,10 @@ def calculate():
 
 	try:
 		orders_count = 0
-		for r in open(file_name):
+		file = open(file_name)
+		for r in file:
 			orders_count += 1
+		file.close()
 	except:
 		print('File does not exist')
 		return
@@ -26,8 +28,8 @@ def calculate():
 		return
 
 	initial_data = {}
+	file_0 = []
 	file_1 = []
-	file_2 = []
 
 	with open(file_name) as data_file:
 		orders = csv.reader(data_file, delimiter=',')
@@ -46,7 +48,7 @@ def calculate():
 				initial_data[order[2]] = {"total_qty": float(order[3]), 'avg_qty': round((float(order[3]) / orders_count), 3), 'brands': {order[4]: 1}}
 		
 		for product in initial_data:
-			file_1.append([product, initial_data[product]['avg_qty']])
+			file_0.append([product, initial_data[product]['avg_qty']])
 			brands = initial_data[product]['brands']
 			max_count = 0
 			brand_name = ''
@@ -54,20 +56,29 @@ def calculate():
 				if brands[brand] > max_count:
 					max_count = brands[brand]
 					brand_name = brand
-			file_2.append([product, brand_name])
+			file_1.append([product, brand_name])
+
 	try:
 		with open('0_'+file_name, 'w', newline='') as f1:
 			writer = csv.writer(f1)
-			writer.writerows(file_1)
-	except:
-		print('Could not create the results file')
-		return
-	try:
-		with open('1_'+file_name, 'w', newline='') as f2:
-			writer = csv.writer(f2)
-			writer.writerows(file_2)
+			writer.writerows(file_0)
+			f1.close()
 	except:
 		print('Could not create the results file')
 		return
 
-calculate()
+	try:
+		with open('1_'+file_name, 'w', newline='') as f2:
+			writer = csv.writer(f2)
+			writer.writerows(file_1)
+			f2.close()
+	except:
+		print('Could not create the results file')
+		return
+	
+	data_file.close()
+	
+	return {'file_0': file_0, 'file_1': file_1}
+
+if __name__ == '__main__':
+	calculate()
